@@ -5,9 +5,6 @@ format: html
 ---
 
 # Task 1: Geometrically Weighted Terms in ERGMs
-
-In this task, we explore the behavior of the geometrically weighted out-degree (**gwodegree**) used in ERGMs for directed networks.
-
 ## (1) Change statistic of gwodegree
 
 The **gwodegree** effect is defined as:
@@ -37,7 +34,6 @@ $$\mathbf{\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k}$$
 #| message: false
 #| warning: false
 
-# 1. Load libraries and prepare data
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -76,7 +72,6 @@ p2 <- plot_data %>% filter(alpha == -0.5) %>%
        y = expression(delta[GWD]), x = "Current Out-degree k") +
   theme_minimal()
 
-# IMPORTANT: You must call the variables to make them show up in the PDF
 p1
 p2
 ```
@@ -130,18 +125,12 @@ library(ergm)
 
 file_path <- "Assignment_02/Glasgow/f1.csv" 
 
-# 1. Load the data as a raw matrix
-# We set header = FALSE because adjacency matrices often don't have column names
 adj_m1 <- as.matrix(read.csv(file_path, header = FALSE))
 
-# 3. Convert to network
-# We specify directed = TRUE for a friendship network
 glasgow1 <- as.network(adj_m1, directed = TRUE)
 
-# 4. Estimate M1 (Edges only)
 m1 <- ergm(glasgow1 ~ edges)
 
-# 5. Check the results
 summary(m1)
 ```
 
@@ -150,16 +139,12 @@ summary(m1)
 #| message: false
 #| warning: false
 
-
-# --- M2 with coefficient = -2 ---
 m2_neg <- ergm(glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)),
                offset.coef = -2)
 
-# --- M2 with coefficient = 2 ---
 m2_pos <- ergm(glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)),
                offset.coef = 2)
 
-# Compare the 'edges' estimates
 summary(m2_neg)
 summary(m2_pos)
 

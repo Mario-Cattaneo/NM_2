@@ -139,7 +139,6 @@ window.Quarto = {
 
 <section id="task-1-geometrically-weighted-terms-in-ergms" class="level1">
 <h1>Task 1: Geometrically Weighted Terms in ERGMs</h1>
-<p>In this task, we explore the behavior of the geometrically weighted out-degree (<strong>gwodegree</strong>) used in ERGMs for directed networks.</p>
 <section id="change-statistic-of-gwodegree" class="level2">
 <h2 class="anchored" data-anchor-id="change-statistic-of-gwodegree">(1) Change statistic of gwodegree</h2>
 <p>The <strong>gwodegree</strong> effect is defined as: <span class="math display">\[s_{GWD}(x, \alpha) = e^\alpha \sum_{k=1}^{n} \{1 - (1 - e^{-\alpha})^k\} D_k^{out}(x)\]</span> where <span class="math inline">\(D_k^{out}(x)\)</span> is the number of nodes with exactly out-degree <span class="math inline">\(k\)</span> in network <span class="math inline">\(x\)</span>, and <span class="math inline">\(\alpha\)</span> is the decay parameter.</p>
@@ -153,21 +152,20 @@ window.Quarto = {
 <section id="ii.-plotting-the-change-statistic" class="level3">
 <h3 class="anchored" data-anchor-id="ii.-plotting-the-change-statistic">ii. Plotting the change statistic</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Load libraries and prepare data</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>delta_gwd <span class="ot">&lt;-</span> <span class="cf">function</span>(k, alpha) {</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>alpha))<span class="sc">^</span>k</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>alphas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fu">log</span>(<span class="dv">2</span>), <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>k_range <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">15</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">k =</span> k_range, <span class="at">alpha =</span> alphas) <span class="sc">%&gt;%</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delta =</span> <span class="fu">delta_gwd</span>(k, alpha),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">alpha_label =</span> <span class="fu">factor</span>(<span class="fu">round</span>(alpha, <span class="dv">2</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>delta_gwd <span class="ot">&lt;-</span> <span class="cf">function</span>(k, alpha) {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>alpha))<span class="sc">^</span>k</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>alphas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fu">log</span>(<span class="dv">2</span>), <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>k_range <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">15</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">k =</span> k_range, <span class="at">alpha =</span> alphas) <span class="sc">%&gt;%</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delta =</span> <span class="fu">delta_gwd</span>(k, alpha),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">alpha_label =</span> <span class="fu">factor</span>(<span class="fu">round</span>(alpha, <span class="dv">2</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the plots</span></span>
@@ -185,9 +183,8 @@ window.Quarto = {
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(delta[GWD]), <span class="at">x =</span> <span class="st">"Current Out-degree k"</span>) <span class="sc">+</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANT: You must call the variables to make them show up in the PDF</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>p1</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>p1</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-negative-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -263,19 +260,13 @@ Figure&nbsp;3: Change statistics for non-negative decay values
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>file_path <span class="ot">&lt;-</span> <span class="st">"Assignment_02/Glasgow/f1.csv"</span> </span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Load the data as a raw matrix</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># We set header = FALSE because adjacency matrices often don't have column names</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>adj_m1 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">read.csv</span>(file_path, <span class="at">header =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>adj_m1 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">read.csv</span>(file_path, <span class="at">header =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>glasgow1 <span class="ot">&lt;-</span> <span class="fu">as.network</span>(adj_m1, <span class="at">directed =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Convert to network</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># We specify directed = TRUE for a friendship network</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>glasgow1 <span class="ot">&lt;-</span> <span class="fu">as.network</span>(adj_m1, <span class="at">directed =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Estimate M1 (Edges only)</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Check the results</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 ergm(formula = glasgow1 ~ edges)
@@ -297,16 +288,13 @@ AIC: 4118  BIC: 4125  (Smaller is better. MC Std. Err. = 0)</code></pre>
 <section id="ii.-ergm-on-wave-1-gwodegree--2-2-with-fixed-alpha-0.3" class="level3">
 <h3 class="anchored" data-anchor-id="ii.-ergm-on-wave-1-gwodegree--2-2-with-fixed-alpha-0.3">ii. ERGM on Wave 1 gwodegree <span class="math inline">\(\{ -2, 2\}\)</span> with fixed <span class="math inline">\(\alpha = 0.3\)</span></h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- M2 with coefficient = -2 ---</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>m2_neg <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">offset.coef =</span> <span class="sc">-</span><span class="dv">2</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- M2 with coefficient = 2 ---</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>m2_pos <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">offset.coef =</span> <span class="dv">2</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare the 'edges' estimates</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2_neg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m2_neg <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">offset.coef =</span> <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>m2_pos <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">offset.coef =</span> <span class="dv">2</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2_neg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3, 
@@ -315,15 +303,15 @@ ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3,
 Monte Carlo Maximum Likelihood Results:
 
                          Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
-edges                     -3.3632     0.0391      1  -86.02   &lt;1e-04 ***
-offset(gwodeg.fixed.0.3)  -2.0000     0.0000      0    -Inf   &lt;1e-04 ***
+edges                    -3.36225    0.03842      1  -87.51   &lt;1e-04 ***
+offset(gwodeg.fixed.0.3) -2.00000    0.00000      0    -Inf   &lt;1e-04 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
      Null Deviance: 22890  on 16512  degrees of freedom
- Residual Deviance:  4116  on 16510  degrees of freedom
+ Residual Deviance:  4119  on 16510  degrees of freedom
  
-AIC: 4118  BIC: 4126  (Smaller is better. MC Std. Err. = 1.093)
+AIC: 4121  BIC: 4129  (Smaller is better. MC Std. Err. = 1.022)
 
  The following terms are fixed by offset and are not estimated:
    `offset(gwodeg.fixed.0.3)` 
@@ -338,15 +326,15 @@ ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3,
 Monte Carlo Maximum Likelihood Results:
 
                          Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
-edges                    -3.68956    0.05381      1  -68.56   &lt;1e-04 ***
+edges                    -3.69322    0.05724      1  -64.52   &lt;1e-04 ***
 offset(gwodeg.fixed.0.3)  2.00000    0.00000      0     Inf   &lt;1e-04 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
      Null Deviance: 22890  on 16512  degrees of freedom
- Residual Deviance:  4116  on 16510  degrees of freedom
+ Residual Deviance:  4115  on 16510  degrees of freedom
  
-AIC: 4118  BIC: 4125  (Smaller is better. MC Std. Err. = 0.5186)
+AIC: 4117  BIC: 4124  (Smaller is better. MC Std. Err. = 0.5072)
 
  The following terms are fixed by offset and are not estimated:
    `offset(gwodeg.fixed.0.3)` 
