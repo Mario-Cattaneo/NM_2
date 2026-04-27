@@ -103,13 +103,12 @@ The figures illustrate how the decay parameter $\alpha$ fundamentally alters the
 
 ### iv. Capturing an activity effect
 
-An "activity" effect in social networks refers to a "rich-get-richer" process, where actors who are already active (those with high out-degrees) are more likely to send additional edges. To capture this specifically using the `gwodegree` framework, we must consider the relationship between the statistic $s_{GWD}$ and the model coefficient $\theta$.
+An "activity effect" in social networks describes a "rich-get-richer" or preferential attachment mechanism where actors who are already highly active (those with high out-degrees) are more likely to send additional edges. This creates concentration: a few hub nodes drive much of the network structure. To capture this effect specifically using the `gwodegree` framework requires understanding how the statistic's coefficient interacts with the decay parameter $\alpha$.
 
-As demonstrated in the plots, the `gwodegree` statistic with a positive $\alpha$ is designed to model **diminishing returns** (anti-centralization). It places higher weight on the formation of edges by low-degree nodes. Therefore, to capture an **activity effect** (centralization), the decay parameter $\alpha$ should be chosen as a **positive value**, but the model should be estimated with a **negative coefficient** ($\theta < 0$).
+The fundamental insight is that the `gwodegree` statistic with positive $\alpha$ is inherently designed to model **diminishing returns** from the perspective of low-degree nodes. Recall that $\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k$ decays geometrically in $k$. When a positive coefficient is applied to this statistic, the model rewards networks where contributions are spread evenly—maximizing the utility of early, low-degree edges. To reverse this preference and instead reward networks where high-degree nodes dominate, the `gwodegree` coefficient must be **negative** (e.g., $\theta < 0$).
 
-When the coefficient for `gwodegree` is negative, the model "penalizes" networks with high `gwodegree` values. Since a high `gwodegree` statistic represents a network where edges are spread out evenly among many nodes (maximizing the "utility" of low-degree edges), a negative coefficient rewards the opposite: a network where edges are concentrated in a few highly active hubs. 
+With a negative coefficient, the model penalizes high `gwodegree` values, effectively punishing the "spread-out" edge distribution and favoring its opposite: concentrated edges among a few active hubs. The choice of the specific positive $\alpha$ value determines the **scope and sensitivity** of this activity effect. A **small positive $\alpha$** (e.g., 0.1 to 0.3) creates a very sharp discriminatory effect, heavily penalizing networks with many low-degree nodes while strongly rewarding concentration. This focuses the activity incentive on the critical transition from inactivity to activity. A **larger $\alpha$** (e.g., 1.0 or higher) produces a smoother effect where the discrimination between low-degree and high-degree nodes is more gradual, allowing the activity preference to persist across a wider range of out-degrees. In practice, $\alpha$ is often fixed to a moderate value like $\ln(2) \approx 0.69$ to balance statistical identifiability with sufficient heterogeneity in the marginal contribution function. This choice enables stable parameter estimation while maintaining enough flexibility to capture meaningful activity-driven processes in empirical networks.
 
-The choice of the specific $\alpha$ value determines the "scope" of this activity effect. A **small positive $\alpha$** (e.g., 0.1 to 0.3) creates a very sharp distinction between low-degree and high-degree nodes, focusing the activity effect on the transition from being inactive to active. A **larger $\alpha$** (e.g., 1.0 or higher) smooths this effect, allowing the "activity" incentive to persist even as nodes reach higher degrees. In practice, $\alpha$ is often fixed to a value like $\ln(2) \approx 0.69$ to provide a balance that allows for stable estimation while still allowing high-degree nodes to drive the network structure through a negative coefficient.
 
 
 # (2) Effect of the gwodegree coefficient on the out-degree distribution.
@@ -148,22 +147,29 @@ summary(m2_pos)
 ```
 
 
-### iii. Simulations$ 
+### iii. Simulations
 ```{r}
 #| label: fig-violin-plots
 #| fig-cap: "Out-degree distributions across models"
 #| message: false
 #| warning: false
 
-# 1. Simulate 100 networks from each model
-sim_m1 <- simulate(m1, nsim = 100)
-sim_m2_neg <- simulate(m2_neg, nsim = 100)
-sim_m2_pos <- simulate(m2_pos, nsim = 100)
+# Fitted coefficients for fixed-parameter simulations
+coef_m1 <- coef(m1)
+coef_m2_neg <- coef(m2_neg)
+coef_m2_pos <- coef(m2_pos)
 
-# 2. Function to get degree distributions from a list of simulated networks
+# Simulate
+sim_m1 <- simulate_formula(glasgow1 ~ edges, coef = coef_m1, nsim = 100)
+sim_m2_neg <- simulate_formula(glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)), 
+                               coef = c(coef_m2_neg["edges"], 0), 
+                               offset.coef = -2, nsim = 100)
+sim_m2_pos <- simulate_formula(glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)), 
+                               coef = c(coef_m2_pos["edges"], 0), 
+                               offset.coef = 2, nsim = 100)
+
 get_degree_df <- function(sim_list, model_name) {
-  # Get out-degrees for every node in every simulated network
-  # This creates a long data frame for plotting
+  # Out-degrees for every node in every simulated network
   do.call(rbind, lapply(1:length(sim_list), function(i) {
     data.frame(
       degree = summary(sim_list[[i]] ~ odegree(0:15)),
@@ -174,14 +180,13 @@ get_degree_df <- function(sim_list, model_name) {
   }))
 }
 
-# 3. Combine data for plotting
 plot_df <- rbind(
   get_degree_df(sim_m1, "M1 (Edges Only)"),
   get_degree_df(sim_m2_neg, "M2 (Coef = -2)"),
   get_degree_df(sim_m2_pos, "M2 (Coef = 2)")
 )
 
-# 4. Create the violin plot
+# Violin plot
 ggplot(plot_df, aes(x = as.factor(deg_val), y = degree, fill = model)) +
   geom_violin(position = position_dodge(width = 0.8), alpha = 0.7) +
   labs(title = "Out-degree Distribution Comparison",
@@ -190,3 +195,16 @@ ggplot(plot_df, aes(x = as.factor(deg_val), y = degree, fill = model)) +
        fill = "Model Configuration") +
   theme_minimal()
 ```
+
+### iv. Comparison of out-degree distributions across configurations
+
+The distinction between the three model configurations—M1 (edges only), M2 with negative gwodegree coefficient (Coef = −2), and M2 with positive gwodegree coefficient (Coef = 2)—reveals how network-level structure emerges from local preferences encoded in exponential random graph model parameters. Understanding these differences requires comparing the observed out-degree distributions against what we would expect from a random network with identical density.
+
+**M1 (Edges only)** serves as a baseline and represents a purely random graph model. The edges-only specification produces a Poisson-like out-degree distribution centered around the expected density: nodes have relatively homogeneous out-degrees with light tails, reflecting that edge placement is equiprobable and independent (beyond the global density constraint). This distribution is what we would expect from a random network where density alone determines structure.
+
+**M2 with negative coefficient (Coef = −2)** suppresses the gwodegree statistic, actively penalizing networks with high values of the gwodegree term. Since gwodegree with positive $\alpha$ rewards spread-out, "ordinary" out-degree distributions, applying a negative coefficient inverts this preference. The resulting networks exhibit **increased concentration**: fewer nodes with very high out-degrees (hubs) and more nodes with very low out-degrees. This distribution deviates substantially from the random baseline, showing pronounced right skewness and centralization. Real-world social networks often exhibit such patterns where a small fraction of actors drive most communication.
+
+**M2 with positive coefficient (Coef = 2)** amplifies gwodegree, rewarding networks where edges are more evenly distributed. The resulting out-degree distribution becomes **more uniform and dispersed**, with reduced concentration. Compared to M1, fewer hubs emerge and the distribution is flatter; compared to negative coefficient, the distributions are fundamentally opposite. This configuration would better capture scenarios where activity is democratized across many actors rather than concentrated.
+
+The magnitude of these distributional shifts—relative to the random baseline (M1)—demonstrates how even modest parameters ($\theta = \pm 2$) substantially reshape emergent network topology. The gwodegree parameter thus provides a powerful mechanism for controlling the balance between centralization and decentralization in ERGM simulations.
+

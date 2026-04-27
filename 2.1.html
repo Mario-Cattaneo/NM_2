@@ -241,10 +241,9 @@ Figure&nbsp;3: Change statistics for non-negative decay values
 </section>
 <section id="iv.-capturing-an-activity-effect" class="level3">
 <h3 class="anchored" data-anchor-id="iv.-capturing-an-activity-effect">iv. Capturing an activity effect</h3>
-<p>An “activity” effect in social networks refers to a “rich-get-richer” process, where actors who are already active (those with high out-degrees) are more likely to send additional edges. To capture this specifically using the <code>gwodegree</code> framework, we must consider the relationship between the statistic <span class="math inline">\(s_{GWD}\)</span> and the model coefficient <span class="math inline">\(\theta\)</span>.</p>
-<p>As demonstrated in the plots, the <code>gwodegree</code> statistic with a positive <span class="math inline">\(\alpha\)</span> is designed to model <strong>diminishing returns</strong> (anti-centralization). It places higher weight on the formation of edges by low-degree nodes. Therefore, to capture an <strong>activity effect</strong> (centralization), the decay parameter <span class="math inline">\(\alpha\)</span> should be chosen as a <strong>positive value</strong>, but the model should be estimated with a <strong>negative coefficient</strong> (<span class="math inline">\(\theta &lt; 0\)</span>).</p>
-<p>When the coefficient for <code>gwodegree</code> is negative, the model “penalizes” networks with high <code>gwodegree</code> values. Since a high <code>gwodegree</code> statistic represents a network where edges are spread out evenly among many nodes (maximizing the “utility” of low-degree edges), a negative coefficient rewards the opposite: a network where edges are concentrated in a few highly active hubs.</p>
-<p>The choice of the specific <span class="math inline">\(\alpha\)</span> value determines the “scope” of this activity effect. A <strong>small positive <span class="math inline">\(\alpha\)</span></strong> (e.g., 0.1 to 0.3) creates a very sharp distinction between low-degree and high-degree nodes, focusing the activity effect on the transition from being inactive to active. A <strong>larger <span class="math inline">\(\alpha\)</span></strong> (e.g., 1.0 or higher) smooths this effect, allowing the “activity” incentive to persist even as nodes reach higher degrees. In practice, <span class="math inline">\(\alpha\)</span> is often fixed to a value like <span class="math inline">\(\ln(2) \approx 0.69\)</span> to provide a balance that allows for stable estimation while still allowing high-degree nodes to drive the network structure through a negative coefficient.</p>
+<p>An “activity effect” in social networks describes a “rich-get-richer” or preferential attachment mechanism where actors who are already highly active (those with high out-degrees) are more likely to send additional edges. This creates concentration: a few hub nodes drive much of the network structure. To capture this effect specifically using the <code>gwodegree</code> framework requires understanding how the statistic’s coefficient interacts with the decay parameter <span class="math inline">\(\alpha\)</span>.</p>
+<p>The fundamental insight is that the <code>gwodegree</code> statistic with positive <span class="math inline">\(\alpha\)</span> is inherently designed to model <strong>diminishing returns</strong> from the perspective of low-degree nodes. Recall that <span class="math inline">\(\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k\)</span> decays geometrically in <span class="math inline">\(k\)</span>. When a positive coefficient is applied to this statistic, the model rewards networks where contributions are spread evenly—maximizing the utility of early, low-degree edges. To reverse this preference and instead reward networks where high-degree nodes dominate, the <code>gwodegree</code> coefficient must be <strong>negative</strong> (e.g., <span class="math inline">\(\theta &lt; 0\)</span>).</p>
+<p>With a negative coefficient, the model penalizes high <code>gwodegree</code> values, effectively punishing the “spread-out” edge distribution and favoring its opposite: concentrated edges among a few active hubs. The choice of the specific positive <span class="math inline">\(\alpha\)</span> value determines the <strong>scope and sensitivity</strong> of this activity effect. A <strong>small positive <span class="math inline">\(\alpha\)</span></strong> (e.g., 0.1 to 0.3) creates a very sharp discriminatory effect, heavily penalizing networks with many low-degree nodes while strongly rewarding concentration. This focuses the activity incentive on the critical transition from inactivity to activity. A <strong>larger <span class="math inline">\(\alpha\)</span></strong> (e.g., 1.0 or higher) produces a smoother effect where the discrimination between low-degree and high-degree nodes is more gradual, allowing the activity preference to persist across a wider range of out-degrees. In practice, <span class="math inline">\(\alpha\)</span> is often fixed to a moderate value like <span class="math inline">\(\ln(2) \approx 0.69\)</span> to balance statistical identifiability with sufficient heterogeneity in the marginal contribution function. This choice enables stable parameter estimation while maintaining enough flexibility to capture meaningful activity-driven processes in empirical networks.</p>
 </section>
 </section>
 </section>
@@ -301,15 +300,15 @@ ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3,
 Monte Carlo Maximum Likelihood Results:
 
                          Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
-edges                    -3.36156    0.03417      0  -98.39   &lt;1e-04 ***
+edges                    -3.36333    0.03689      0  -91.18   &lt;1e-04 ***
 offset(gwodeg.fixed.0.3) -2.00000    0.00000      0    -Inf   &lt;1e-04 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
      Null Deviance: 22890  on 16512  degrees of freedom
- Residual Deviance:  4121  on 16510  degrees of freedom
+ Residual Deviance:  4119  on 16510  degrees of freedom
  
-AIC: 4123  BIC: 4130  (Smaller is better. MC Std. Err. = 0.6732)
+AIC: 4121  BIC: 4128  (Smaller is better. MC Std. Err. = 0.9685)
 
  The following terms are fixed by offset and are not estimated:
    `offset(gwodeg.fixed.0.3)` 
@@ -324,15 +323,15 @@ ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3,
 Monte Carlo Maximum Likelihood Results:
 
                          Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
-edges                    -3.68907    0.05877      0  -62.77   &lt;1e-04 ***
+edges                    -3.69936    0.05597      1  -66.09   &lt;1e-04 ***
 offset(gwodeg.fixed.0.3)  2.00000    0.00000      0     Inf   &lt;1e-04 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
      Null Deviance: 22890  on 16512  degrees of freedom
- Residual Deviance:  4115  on 16510  degrees of freedom
+ Residual Deviance:  4116  on 16510  degrees of freedom
  
-AIC: 4117  BIC: 4124  (Smaller is better. MC Std. Err. = 0.4679)
+AIC: 4118  BIC: 4126  (Smaller is better. MC Std. Err. = 0.4232)
 
  The following terms are fixed by offset and are not estimated:
    `offset(gwodeg.fixed.0.3)` 
@@ -341,42 +340,48 @@ AIC: 4117  BIC: 4124  (Smaller is better. MC Std. Err. = 0.4679)
 </div>
 </section>
 <section id="iii.-simulations" class="level3">
-<h3 class="anchored" data-anchor-id="iii.-simulations">iii. Simulations$</h3>
+<h3 class="anchored" data-anchor-id="iii.-simulations">iii. Simulations</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Simulate 100 networks from each model</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sim_m1 <span class="ot">&lt;-</span> <span class="fu">simulate</span>(m1, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>sim_m2_neg <span class="ot">&lt;-</span> <span class="fu">simulate</span>(m2_neg, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>sim_m2_pos <span class="ot">&lt;-</span> <span class="fu">simulate</span>(m2_pos, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract fitted coefficients for fixed-parameter simulations</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>coef_m1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m1)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>coef_m2_neg <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_neg)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>coef_m2_pos <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_pos)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Function to get degree distributions from a list of simulated networks</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>get_degree_df <span class="ot">&lt;-</span> <span class="cf">function</span>(sim_list, model_name) {</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get out-degrees for every node in every simulated network</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># This creates a long data frame for plotting</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(sim_list), <span class="cf">function</span>(i) {</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">degree =</span> <span class="fu">summary</span>(sim_list[[i]] <span class="sc">~</span> <span class="fu">odegree</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">15</span>)),</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">deg_val =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">15</span>,</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">model =</span> model_name,</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">sim_id =</span> i</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  }))</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Combine data for plotting</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m1, <span class="st">"M1 (Edges Only)"</span>),</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m2_neg, <span class="st">"M2 (Coef = -2)"</span>),</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m2_pos, <span class="st">"M2 (Coef = 2)"</span>)</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate 100 networks from each model using simulate_formula with fixed coefficients</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>sim_m1 <span class="ot">&lt;-</span> <span class="fu">simulate_formula</span>(glasgow1 <span class="sc">~</span> edges, <span class="at">coef =</span> coef_m1, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>sim_m2_neg <span class="ot">&lt;-</span> <span class="fu">simulate_formula</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)), </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                               <span class="at">coef =</span> <span class="fu">c</span>(coef_m2_neg[<span class="st">"edges"</span>], <span class="dv">0</span>), </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                               <span class="at">offset.coef =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>sim_m2_pos <span class="ot">&lt;-</span> <span class="fu">simulate_formula</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)), </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                               <span class="at">coef =</span> <span class="fu">c</span>(coef_m2_pos[<span class="st">"edges"</span>], <span class="dv">0</span>), </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                               <span class="at">offset.coef =</span> <span class="dv">2</span>, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>get_degree_df <span class="ot">&lt;-</span> <span class="cf">function</span>(sim_list, model_name) {</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get out-degrees for every node in every simulated network</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(sim_list), <span class="cf">function</span>(i) {</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">degree =</span> <span class="fu">summary</span>(sim_list[[i]] <span class="sc">~</span> <span class="fu">odegree</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">15</span>)),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">deg_val =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">15</span>,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">model =</span> model_name,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">sim_id =</span> i</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Create the violin plot</span></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.factor</span>(deg_val), <span class="at">y =</span> degree, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.8</span>), <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Out-degree Distribution Comparison"</span>,</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Out-degree"</span>,</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Nodes"</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Model Configuration"</span>) <span class="sc">+</span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m1, <span class="st">"M1 (Edges Only)"</span>),</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m2_neg, <span class="st">"M2 (Coef = -2)"</span>),</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m2_pos, <span class="st">"M2 (Coef = 2)"</span>)</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Violin plot</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.factor</span>(deg_val), <span class="at">y =</span> degree, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.8</span>), <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Out-degree Distribution Comparison"</span>,</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Out-degree"</span>,</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Nodes"</span>,</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Model Configuration"</span>) <span class="sc">+</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-violin-plots" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -390,6 +395,14 @@ Figure&nbsp;4: Out-degree distributions across models
 </div>
 </div>
 </div>
+</section>
+<section id="iv.-comparison-of-out-degree-distributions-across-configurations" class="level3">
+<h3 class="anchored" data-anchor-id="iv.-comparison-of-out-degree-distributions-across-configurations">iv. Comparison of out-degree distributions across configurations</h3>
+<p>The distinction between the three model configurations—M1 (edges only), M2 with negative gwodegree coefficient (Coef = −2), and M2 with positive gwodegree coefficient (Coef = 2)—reveals how network-level structure emerges from local preferences encoded in exponential random graph model parameters. Understanding these differences requires comparing the observed out-degree distributions against what we would expect from a random network with identical density.</p>
+<p><strong>M1 (Edges only)</strong> serves as a baseline and represents a purely random graph model. The edges-only specification produces a Poisson-like out-degree distribution centered around the expected density: nodes have relatively homogeneous out-degrees with light tails, reflecting that edge placement is equiprobable and independent (beyond the global density constraint). This distribution is what we would expect from a random network where density alone determines structure.</p>
+<p><strong>M2 with negative coefficient (Coef = −2)</strong> suppresses the gwodegree statistic, actively penalizing networks with high values of the gwodegree term. Since gwodegree with positive <span class="math inline">\(\alpha\)</span> rewards spread-out, “ordinary” out-degree distributions, applying a negative coefficient inverts this preference. The resulting networks exhibit <strong>increased concentration</strong>: fewer nodes with very high out-degrees (hubs) and more nodes with very low out-degrees. This distribution deviates substantially from the random baseline, showing pronounced right skewness and centralization. Real-world social networks often exhibit such patterns where a small fraction of actors drive most communication.</p>
+<p><strong>M2 with positive coefficient (Coef = 2)</strong> amplifies gwodegree, rewarding networks where edges are more evenly distributed. The resulting out-degree distribution becomes <strong>more uniform and dispersed</strong>, with reduced concentration. Compared to M1, fewer hubs emerge and the distribution is flatter; compared to negative coefficient, the distributions are fundamentally opposite. This configuration would better capture scenarios where activity is democratized across many actors rather than concentrated.</p>
+<p>The magnitude of these distributional shifts—relative to the random baseline (M1)—demonstrates how even modest parameters (<span class="math inline">\(\theta = \pm 2\)</span>) substantially reshape emergent network topology. The gwodegree parameter thus provides a powerful mechanism for controlling the balance between centralization and decentralization in ERGM simulations.</p>
 </section>
 </section>
 
