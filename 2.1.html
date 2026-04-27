@@ -106,10 +106,11 @@ window.Quarto = {
 
 </head>
 
-<body class="fullcontent quarto-light">
+<body class="quarto-light">
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="2.1.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -236,14 +237,14 @@ Figure&nbsp;3: Change statistics for non-negative decay values
 <section id="iii.-main-takeaways-from-the-figures" class="level3">
 <h3 class="anchored" data-anchor-id="iii.-main-takeaways-from-the-figures">iii. Main takeaways from the figures</h3>
 <p>The figures illustrate how the decay parameter <span class="math inline">\(\alpha\)</span> fundamentally alters the “marginal contribution” of adding an edge to a node based on its existing out-degree. This relationship is governed by the derived change statistic <span class="math inline">\(\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k\)</span>, whose behavior deserves careful examination across the entire parameter space, particularly through explicit asymptotic analysis.</p>
-<p><strong>Asymptotic behavior for positive and zero values:</strong> The limiting case <span class="math inline">\(\lim_{\alpha \to +\infty} (1 - e^{-\alpha})^k = 1^k = 1\)</span> reveals that as the decay parameter becomes very large, the change statistic converges to a constant 1 regardless of out-degree <span class="math inline">\(k\)</span>. This means the <code>gwodegree</code> term effectively reduces to a simple <code>edges</code> count at infinity, treating all edges equivalently regardless of whether they come from a node with low or high out-degree. Conversely, at <span class="math inline">\(\alpha = 0\)</span>, we have <span class="math inline">\(\delta_{GWD}(k, 0) = (1-1)^k = 0^k\)</span>, which equals 1 for <span class="math inline">\(k=0\)</span> and 0 for <span class="math inline">\(k&gt;0\)</span>—a step function that only rewards whether a node has at least one outgoing edge. Between these extremes, for <strong>non-negative alpha values (<span class="math inline">\(\alpha \geq 0\)</span>)</strong>, the change statistic exhibits “diminishing returns.” When <span class="math inline">\(0 &lt; \alpha &lt; \infty\)</span>, the base <span class="math inline">\((1 - e^{-\alpha})\)</span> lies strictly between 0 and 1, creating a geometric decay as <span class="math inline">\(k\)</span> increases. The specific value of <span class="math inline">\(\alpha\)</span> controls the speed of this decay: a small <span class="math inline">\(\alpha\)</span> (e.g., 0.1) produces rapid decay where only the first few edges contribute meaningfully, while larger <span class="math inline">\(\alpha\)</span> (e.g., 3) produces slower decay and maintains substantial weight across a wider range of out-degrees.</p>
+<p><strong>Asymptotic behavior for positive and zero values:</strong> The limiting case <span class="math inline">\(\lim_{\alpha \to +\infty} (1 - e^{-\alpha})^k = 1^k = 1\)</span> reveals that as the decay parameter becomes very large, the change statistic converges to a constant 1 regardless of out-degree <span class="math inline">\(k\)</span>. This means the gwodegree term effectively reduces to a simple <code>edges</code> count at infinity, treating all edges equivalently regardless of whether they come from a node with low or high out-degree. Conversely, at <span class="math inline">\(\alpha = 0\)</span>, we have <span class="math inline">\(\delta_{GWD}(k, 0) = (1-1)^k = 0^k\)</span>, which equals 1 for <span class="math inline">\(k=0\)</span> and 0 for <span class="math inline">\(k&gt;0\)</span>—a step function that only rewards whether a node has at least one outgoing edge. Between these extremes, for <strong>non-negative alpha values (<span class="math inline">\(\alpha \geq 0\)</span>)</strong>, the change statistic exhibits “diminishing returns.” When <span class="math inline">\(0 &lt; \alpha &lt; \infty\)</span>, the base <span class="math inline">\((1 - e^{-\alpha})\)</span> lies strictly between 0 and 1, creating a geometric decay as <span class="math inline">\(k\)</span> increases. The specific value of <span class="math inline">\(\alpha\)</span> controls the speed of this decay: a small <span class="math inline">\(\alpha\)</span> (e.g., 0.1) produces rapid decay where only the first few edges contribute meaningfully, while larger <span class="math inline">\(\alpha\)</span> (e.g., 3) produces slower decay and maintains substantial weight across a wider range of out-degrees.</p>
 <p><strong>Problematic behavior for negative values:</strong> In contrast, <strong>negative alpha values (<span class="math inline">\(\alpha &lt; 0\)</span>)</strong> lead to mathematical and practical instability. As <span class="math inline">\(\alpha\)</span> decreases below zero, the base <span class="math inline">\((1 - e^{-\alpha}) &lt; 0\)</span> becomes negative, causing the change statistic <span class="math inline">\((1 - e^{-\alpha})^k\)</span> to oscillate between positive and negative values depending on whether <span class="math inline">\(k\)</span> is even or odd. Critically, <span class="math inline">\(\lim_{\alpha \to -\infty} (1 - e^{-\alpha})^k\)</span> does not converge; instead, the magnitude <span class="math inline">\(|1 - e^{-\alpha}|^k \to \infty\)</span> exponentially. For intermediate negative values like <span class="math inline">\(\alpha = -1\)</span>, these oscillations already explode in magnitude. In the context of ERGMs, such behavior leads to <strong>model degeneracy</strong>, where the simulation fails to converge because the model’s preferences become infinitely large or unstable, rendering negative <span class="math inline">\(\alpha\)</span> values unsuitable for modeling real-world social processes.</p>
 </section>
 <section id="iv.-capturing-an-activity-effect" class="level3">
 <h3 class="anchored" data-anchor-id="iv.-capturing-an-activity-effect">iv. Capturing an activity effect</h3>
-<p>An “activity effect” in social networks describes a “rich-get-richer” or preferential attachment mechanism where actors who are already highly active (those with high out-degrees) are more likely to send additional edges. This creates concentration: a few hub nodes drive much of the network structure. To capture this effect specifically using the <code>gwodegree</code> framework requires understanding how the statistic’s coefficient interacts with the decay parameter <span class="math inline">\(\alpha\)</span>.</p>
-<p>The fundamental insight is that the <code>gwodegree</code> statistic with positive <span class="math inline">\(\alpha\)</span> is inherently designed to model <strong>diminishing returns</strong> from the perspective of low-degree nodes. Recall that <span class="math inline">\(\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k\)</span> decays geometrically in <span class="math inline">\(k\)</span>. When a positive coefficient is applied to this statistic, the model rewards networks where contributions are spread evenly—maximizing the utility of early, low-degree edges. To reverse this preference and instead reward networks where high-degree nodes dominate, the <code>gwodegree</code> coefficient must be <strong>negative</strong> (e.g., <span class="math inline">\(\theta &lt; 0\)</span>).</p>
-<p>With a negative coefficient, the model penalizes high <code>gwodegree</code> values, effectively punishing the “spread-out” edge distribution and favoring its opposite: concentrated edges among a few active hubs. The choice of the specific positive <span class="math inline">\(\alpha\)</span> value determines the <strong>scope and sensitivity</strong> of this activity effect. A <strong>small positive <span class="math inline">\(\alpha\)</span></strong> (e.g., 0.1 to 0.3) creates a very sharp discriminatory effect, heavily penalizing networks with many low-degree nodes while strongly rewarding concentration. This focuses the activity incentive on the critical transition from inactivity to activity. A <strong>larger <span class="math inline">\(\alpha\)</span></strong> (e.g., 1.0 or higher) produces a smoother effect where the discrimination between low-degree and high-degree nodes is more gradual, allowing the activity preference to persist across a wider range of out-degrees. In practice, <span class="math inline">\(\alpha\)</span> is often fixed to a moderate value like <span class="math inline">\(\ln(2) \approx 0.69\)</span> to balance statistical identifiability with sufficient heterogeneity in the marginal contribution function. This choice enables stable parameter estimation while maintaining enough flexibility to capture meaningful activity-driven processes in empirical networks.</p>
+<p>An “activity effect” in social networks describes a “rich-get-richer” or preferential attachment mechanism where actors who are already highly active (those with high out-degrees) are more likely to send additional edges. This creates concentration: a few hub nodes drive much of the network structure. To capture this effect specifically using the gwodegree framework requires understanding how the statistic’s coefficient interacts with the decay parameter <span class="math inline">\(\alpha\)</span>.</p>
+<p>The fundamental insight is that the gwodegree statistic with positive <span class="math inline">\(\alpha\)</span> is inherently designed to model <strong>diminishing returns</strong> from the perspective of low-degree nodes. Recall that <span class="math inline">\(\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k\)</span> decays geometrically in <span class="math inline">\(k\)</span>. When a positive coefficient is applied to this statistic, the model rewards networks where contributions are spread evenly—maximizing the utility of early, low-degree edges. To reverse this preference and instead reward networks where high-degree nodes dominate, the gwodegree coefficient must be <strong>negative</strong> (e.g., <span class="math inline">\(\theta &lt; 0\)</span>).</p>
+<p>With a negative coefficient, the model penalizes high gwodegree values, effectively punishing the “spread-out” edge distribution and favoring its opposite: concentrated edges among a few active hubs. The choice of the specific positive <span class="math inline">\(\alpha\)</span> value determines the <strong>scope and sensitivity</strong> of this activity effect. A <strong>small positive <span class="math inline">\(\alpha\)</span></strong> (e.g., 0.1 to 0.3) creates a very sharp discriminatory effect, heavily penalizing networks with many low-degree nodes while strongly rewarding concentration. This focuses the activity incentive on the critical transition from inactivity to activity. A <strong>larger <span class="math inline">\(\alpha\)</span></strong> (e.g., 1.0 or higher) produces a smoother effect where the discrimination between low-degree and high-degree nodes is more gradual, allowing the activity preference to persist across a wider range of out-degrees. In practice, <span class="math inline">\(\alpha\)</span> is often fixed to a moderate value like <span class="math inline">\(\ln(2) \approx 0.69\)</span> to balance statistical identifiability with sufficient heterogeneity in the marginal contribution function. This choice enables stable parameter estimation while maintaining enough flexibility to capture meaningful activity-driven processes in empirical networks.</p>
 </section>
 </section>
 </section>
@@ -300,15 +301,15 @@ ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3,
 Monte Carlo Maximum Likelihood Results:
 
                          Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
-edges                    -3.36333    0.03689      0  -91.18   &lt;1e-04 ***
+edges                    -3.36070    0.03719      1  -90.35   &lt;1e-04 ***
 offset(gwodeg.fixed.0.3) -2.00000    0.00000      0    -Inf   &lt;1e-04 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
      Null Deviance: 22890  on 16512  degrees of freedom
- Residual Deviance:  4119  on 16510  degrees of freedom
+ Residual Deviance:  4121  on 16510  degrees of freedom
  
-AIC: 4121  BIC: 4128  (Smaller is better. MC Std. Err. = 0.9685)
+AIC: 4123  BIC: 4130  (Smaller is better. MC Std. Err. = 1.059)
 
  The following terms are fixed by offset and are not estimated:
    `offset(gwodeg.fixed.0.3)` 
@@ -323,15 +324,15 @@ ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3,
 Monte Carlo Maximum Likelihood Results:
 
                          Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
-edges                    -3.69936    0.05597      1  -66.09   &lt;1e-04 ***
+edges                    -3.69250    0.05911      1  -62.47   &lt;1e-04 ***
 offset(gwodeg.fixed.0.3)  2.00000    0.00000      0     Inf   &lt;1e-04 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
      Null Deviance: 22890  on 16512  degrees of freedom
- Residual Deviance:  4116  on 16510  degrees of freedom
+ Residual Deviance:  4115  on 16510  degrees of freedom
  
-AIC: 4118  BIC: 4126  (Smaller is better. MC Std. Err. = 0.4232)
+AIC: 4117  BIC: 4125  (Smaller is better. MC Std. Err. = 0.4584)
 
  The following terms are fixed by offset and are not estimated:
    `offset(gwodeg.fixed.0.3)` 
@@ -342,12 +343,12 @@ AIC: 4118  BIC: 4126  (Smaller is better. MC Std. Err. = 0.4232)
 <section id="iii.-simulations" class="level3">
 <h3 class="anchored" data-anchor-id="iii.-simulations">iii. Simulations</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract fitted coefficients for fixed-parameter simulations</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted coefficients for fixed-parameter simulations</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>coef_m1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m1)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>coef_m2_neg <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_neg)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>coef_m2_pos <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_pos)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate 100 networks from each model using simulate_formula with fixed coefficients</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate</span></span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>sim_m1 <span class="ot">&lt;-</span> <span class="fu">simulate_formula</span>(glasgow1 <span class="sc">~</span> edges, <span class="at">coef =</span> coef_m1, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>sim_m2_neg <span class="ot">&lt;-</span> <span class="fu">simulate_formula</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)), </span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                               <span class="at">coef =</span> <span class="fu">c</span>(coef_m2_neg[<span class="st">"edges"</span>], <span class="dv">0</span>), </span>
@@ -357,7 +358,7 @@ AIC: 4118  BIC: 4126  (Smaller is better. MC Std. Err. = 0.4232)
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                               <span class="at">offset.coef =</span> <span class="dv">2</span>, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>get_degree_df <span class="ot">&lt;-</span> <span class="cf">function</span>(sim_list, model_name) {</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get out-degrees for every node in every simulated network</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Out-degrees for every node in every simulated network</span></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(sim_list), <span class="cf">function</span>(i) {</span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">degree =</span> <span class="fu">summary</span>(sim_list[[i]] <span class="sc">~</span> <span class="fu">odegree</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">15</span>)),</span>
