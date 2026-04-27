@@ -57,7 +57,6 @@ plot_data <- expand.grid(k = k_range, alpha = alphas) %>%
 #| message: false
 #| warning: false
 
-# Create the plots
 p1 <- plot_data %>% filter(alpha == -1) %>%
   ggplot(aes(x = k, y = delta)) +
   geom_line(color = "red") + geom_point() +
@@ -96,13 +95,11 @@ plot_data %>% filter(alpha >= 0) %>%
 
 ### iii. Main takeaways from the figures
 
-The figures illustrate how the decay parameter $\alpha$ fundamentally alters the "marginal contribution" of adding an edge to a node based on its existing out-degree. This relationship is governed by the derived change statistic $\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k$.
+The figures illustrate how the decay parameter $\alpha$ fundamentally alters the "marginal contribution" of adding an edge to a node based on its existing out-degree. This relationship is governed by the derived change statistic $\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k$, whose behavior deserves careful examination across the entire parameter space, particularly through explicit asymptotic analysis.
 
-For **non-negative alpha values ($\alpha \geq 0$)**, the change statistic exhibits "diminishing returns." When $\alpha > 0$, the base $(1 - e^{-\alpha})$ is a fraction between 0 and 1. Consequently, as the current out-degree $k$ increases, the value of the change statistic decreases geometrically toward zero. This implies that adding the first edge to a node (where $k=0$) contributes significantly more to the total network statistic than adding an edge to a node that is already "active" (high $k$). 
+**Asymptotic behavior for positive and zero values:** The limiting case $\lim_{\alpha \to +\infty} (1 - e^{-\alpha})^k = 1^k = 1$ reveals that as the decay parameter becomes very large, the change statistic converges to a constant 1 regardless of out-degree $k$. This means the `gwodegree` term effectively reduces to a simple `edges` count at infinity, treating all edges equivalently regardless of whether they come from a node with low or high out-degree. Conversely, at $\alpha = 0$, we have $\delta_{GWD}(k, 0) = (1-1)^k = 0^k$, which equals 1 for $k=0$ and 0 for $k>0$—a step function that only rewards whether a node has at least one outgoing edge. Between these extremes, for **non-negative alpha values ($\alpha \geq 0$)**, the change statistic exhibits "diminishing returns." When $0 < \alpha < \infty$, the base $(1 - e^{-\alpha})$ lies strictly between 0 and 1, creating a geometric decay as $k$ increases. The specific value of $\alpha$ controls the speed of this decay: a small $\alpha$ (e.g., 0.1) produces rapid decay where only the first few edges contribute meaningfully, while larger $\alpha$ (e.g., 3) produces slower decay and maintains substantial weight across a wider range of out-degrees.
 
-The specific value of $\alpha$ controls the "speed" of this decay. A small $\alpha$ (e.g., 0.1) results in a very rapid decay, where only the first few edges contribute meaningfully to the statistic. As $\alpha$ increases (e.g., $\alpha = 3$), the decay becomes much slower, and the change statistic remains near 1 for a wider range of $k$. In the limit where $\alpha \to \infty$, the change statistic becomes a constant 1, effectively turning the `gwodegree` term into a simple `edges` count. At $\alpha = 0$, the statistic becomes a "step function" that only counts whether a node has at least one outgoing edge.
-
-In contrast, **negative alpha values ($\alpha < 0$)** lead to mathematical instability. Because the base $(1 - e^{-\alpha})$ becomes negative, the change statistic oscillates between positive and negative values as $k$ increases. For $\alpha = -1$, the magnitude of these oscillations explodes exponentially. In the context of ERGMs, such behavior typically leads to **model degeneracy**, where the simulation fails to converge because the model's "preferences" become infinitely large or unstable, making it unsuitable for modeling real-world social processes.
+**Problematic behavior for negative values:** In contrast, **negative alpha values ($\alpha < 0$)** lead to mathematical and practical instability. As $\alpha$ decreases below zero, the base $(1 - e^{-\alpha}) < 0$ becomes negative, causing the change statistic $(1 - e^{-\alpha})^k$ to oscillate between positive and negative values depending on whether $k$ is even or odd. Critically, $\lim_{\alpha \to -\infty} (1 - e^{-\alpha})^k$ does not converge; instead, the magnitude $|1 - e^{-\alpha}|^k \to \infty$ exponentially. For intermediate negative values like $\alpha = -1$, these oscillations already explode in magnitude. In the context of ERGMs, such behavior leads to **model degeneracy**, where the simulation fails to converge because the model's preferences become infinitely large or unstable, rendering negative $\alpha$ values unsuitable for modeling real-world social processes.
 
 ### iv. Capturing an activity effect
 
