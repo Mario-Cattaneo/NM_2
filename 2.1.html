@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="-">
+
+<title>Assignment 2: Geometrically Weighted Terms in ERGMs</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="2.1_files/libs/clipboard/clipboard.min.js"></script>
+<script src="2.1_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="2.1_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="2.1_files/libs/quarto-html/popper.min.js"></script>
+<script src="2.1_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="2.1_files/libs/quarto-html/anchor.min.js"></script>
+<link href="2.1_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="2.1_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="2.1_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="2.1_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="2.1_files/libs/bootstrap/bootstrap-908432c34a5131f9f5d5984238bcc02f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Assignment 2: Geometrically Weighted Terms in ERGMs</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>- </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="task-1-geometrically-weighted-terms-in-ergms" class="level1">
+<h1>Task 1: Geometrically Weighted Terms in ERGMs</h1>
+<p>In this task, we explore the behavior of the geometrically weighted out-degree (<strong>gwodegree</strong>) used in ERGMs for directed networks.</p>
+<section id="change-statistic-of-gwodegree" class="level2">
+<h2 class="anchored" data-anchor-id="change-statistic-of-gwodegree">(1) Change statistic of gwodegree</h2>
+<p>The <strong>gwodegree</strong> effect is defined as: <span class="math display">\[s_{GWD}(x, \alpha) = e^\alpha \sum_{k=1}^{n} \{1 - (1 - e^{-\alpha})^k\} D_k^{out}(x)\]</span> where <span class="math inline">\(D_k^{out}(x)\)</span> is the number of nodes with exactly out-degree <span class="math inline">\(k\)</span> in network <span class="math inline">\(x\)</span>, and <span class="math inline">\(\alpha\)</span> is the decay parameter.</p>
+<section id="i.-derivation-of-the-change-statistic-delta_gwdk-alpha" class="level3">
+<h3 class="anchored" data-anchor-id="i.-derivation-of-the-change-statistic-delta_gwdk-alpha">i. Derivation of the change statistic <span class="math inline">\(\delta_{GWD}(k, \alpha)\)</span></h3>
+<p>The change statistic <span class="math inline">\(\delta_{GWD}(k, \alpha)\)</span> is the difference in the network statistic before and after adding a directed edge to a sender node that currently has out-degree <span class="math inline">\(k\)</span>.</p>
+<p>Let <span class="math inline">\(x\)</span> be the initial network and <span class="math inline">\(x^+\)</span> be the network after the edge is added. The addition of the edge causes <span class="math inline">\(D_k^{out}\)</span> to decrease by 1 and <span class="math inline">\(D_{k+1}^{out}\)</span> to increase by 1.</p>
+<p><span class="math display">\[\delta_{GWD}(k, \alpha) = s_{GWD}(x^+, \alpha) - s_{GWD}(x, \alpha)\]</span> <span class="math display">\[\delta_{GWD}(k, \alpha) = e^\alpha \left[ \left(1 - (1 - e^{-\alpha})^{k+1}\right) - \left(1 - (1 - e^{-\alpha})^k\right) \right]\]</span> <span class="math display">\[\delta_{GWD}(k, \alpha) = e^\alpha \left[ 1 - (1 - e^{-\alpha})^{k+1} - 1 + (1 - e^{-\alpha})^k \right]\]</span> <span class="math display">\[\delta_{GWD}(k, \alpha) = e^\alpha \left[ (1 - e^{-\alpha})^k - (1 - e^{-\alpha})^{k+1} \right]\]</span></p>
+<p>Factoring out <span class="math inline">\((1 - e^{-\alpha})^k\)</span>: <span class="math display">\[\delta_{GWD}(k, \alpha) = e^\alpha (1 - e^{-\alpha})^k \left[ 1 - (1 - e^{-\alpha}) \right]\]</span> <span class="math display">\[\delta_{GWD}(k, \alpha) = e^\alpha (1 - e^{-\alpha})^k (e^{-\alpha})\]</span> <span class="math display">\[\mathbf{\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k}\]</span></p>
+</section>
+<section id="ii.-plotting-the-change-statistic" class="level3">
+<h3 class="anchored" data-anchor-id="ii.-plotting-the-change-statistic">ii. Plotting the change statistic</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Load libraries and prepare data</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>delta_gwd <span class="ot">&lt;-</span> <span class="cf">function</span>(k, alpha) {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>alpha))<span class="sc">^</span>k</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>alphas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fu">log</span>(<span class="dv">2</span>), <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>k_range <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">15</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">k =</span> k_range, <span class="at">alpha =</span> alphas) <span class="sc">%&gt;%</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delta =</span> <span class="fu">delta_gwd</span>(k, alpha),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">alpha_label =</span> <span class="fu">factor</span>(<span class="fu">round</span>(alpha, <span class="dv">2</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the plots</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> plot_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(alpha <span class="sc">==</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> delta)) <span class="sc">+</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Change Statistic for "</span>, alpha, <span class="st">" = -1"</span>)),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(delta[GWD]), <span class="at">x =</span> <span class="st">"Current Out-degree k"</span>) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> plot_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(alpha <span class="sc">==</span> <span class="sc">-</span><span class="fl">0.5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> delta)) <span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"orange"</span>) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Change Statistic for "</span>, alpha, <span class="st">" = -0.5"</span>)),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(delta[GWD]), <span class="at">x =</span> <span class="st">"Current Out-degree k"</span>) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANT: You must call the variables to make them show up in the PDF</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>p1</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-negative-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-negative-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="2.1_files/figure-html/fig-negative-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-negative-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Change statistics for negative decay values
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-negative-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-negative-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="2.1_files/figure-html/fig-negative-2.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-negative-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Change statistics for negative decay values
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combined plot for non-negative alphas</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>plot_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(alpha <span class="sc">&gt;=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> delta, <span class="at">color =</span> alpha_label, <span class="at">group =</span> alpha_label)) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Change Statistic for Non-negative Alpha Values"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(delta[GWD]), <span class="at">x =</span> <span class="st">"Current Out-degree k"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="fu">expression</span>(alpha)) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-positive" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-positive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="2.1_files/figure-html/fig-positive-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-positive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Change statistics for non-negative decay values
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="iii.-main-takeaways-from-the-figures" class="level3">
+<h3 class="anchored" data-anchor-id="iii.-main-takeaways-from-the-figures">iii. Main takeaways from the figures</h3>
+<p>The figures illustrate how the decay parameter <span class="math inline">\(\alpha\)</span> fundamentally alters the “marginal contribution” of adding an edge to a node based on its existing out-degree. This relationship is governed by the derived change statistic <span class="math inline">\(\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k\)</span>.</p>
+<p>For <strong>non-negative alpha values (<span class="math inline">\(\alpha \geq 0\)</span>)</strong>, the change statistic exhibits “diminishing returns.” When <span class="math inline">\(\alpha &gt; 0\)</span>, the base <span class="math inline">\((1 - e^{-\alpha})\)</span> is a fraction between 0 and 1. Consequently, as the current out-degree <span class="math inline">\(k\)</span> increases, the value of the change statistic decreases geometrically toward zero. This implies that adding the first edge to a node (where <span class="math inline">\(k=0\)</span>) contributes significantly more to the total network statistic than adding an edge to a node that is already “active” (high <span class="math inline">\(k\)</span>).</p>
+<p>The specific value of <span class="math inline">\(\alpha\)</span> controls the “speed” of this decay. A small <span class="math inline">\(\alpha\)</span> (e.g., 0.1) results in a very rapid decay, where only the first few edges contribute meaningfully to the statistic. As <span class="math inline">\(\alpha\)</span> increases (e.g., <span class="math inline">\(\alpha = 3\)</span>), the decay becomes much slower, and the change statistic remains near 1 for a wider range of <span class="math inline">\(k\)</span>. In the limit where <span class="math inline">\(\alpha \to \infty\)</span>, the change statistic becomes a constant 1, effectively turning the <code>gwodegree</code> term into a simple <code>edges</code> count. At <span class="math inline">\(\alpha = 0\)</span>, the statistic becomes a “step function” that only counts whether a node has at least one outgoing edge.</p>
+<p>In contrast, <strong>negative alpha values (<span class="math inline">\(\alpha &lt; 0\)</span>)</strong> lead to mathematical instability. Because the base <span class="math inline">\((1 - e^{-\alpha})\)</span> becomes negative, the change statistic oscillates between positive and negative values as <span class="math inline">\(k\)</span> increases. For <span class="math inline">\(\alpha = -1\)</span>, the magnitude of these oscillations explodes exponentially. In the context of ERGMs, such behavior typically leads to <strong>model degeneracy</strong>, where the simulation fails to converge because the model’s “preferences” become infinitely large or unstable, making it unsuitable for modeling real-world social processes.</p>
+</section>
+<section id="iv.-capturing-an-activity-effect" class="level3">
+<h3 class="anchored" data-anchor-id="iv.-capturing-an-activity-effect">iv. Capturing an activity effect</h3>
+<p>An “activity” effect in social networks refers to a “rich-get-richer” process, where actors who are already active (those with high out-degrees) are more likely to send additional edges. To capture this specifically using the <code>gwodegree</code> framework, we must consider the relationship between the statistic <span class="math inline">\(s_{GWD}\)</span> and the model coefficient <span class="math inline">\(\theta\)</span>.</p>
+<p>As demonstrated in the plots, the <code>gwodegree</code> statistic with a positive <span class="math inline">\(\alpha\)</span> is designed to model <strong>diminishing returns</strong> (anti-centralization). It places higher weight on the formation of edges by low-degree nodes. Therefore, to capture an <strong>activity effect</strong> (centralization), the decay parameter <span class="math inline">\(\alpha\)</span> should be chosen as a <strong>positive value</strong>, but the model should be estimated with a <strong>negative coefficient</strong> (<span class="math inline">\(\theta &lt; 0\)</span>).</p>
+<p>When the coefficient for <code>gwodegree</code> is negative, the model “penalizes” networks with high <code>gwodegree</code> values. Since a high <code>gwodegree</code> statistic represents a network where edges are spread out evenly among many nodes (maximizing the “utility” of low-degree edges), a negative coefficient rewards the opposite: a network where edges are concentrated in a few highly active hubs.</p>
+<p>The choice of the specific <span class="math inline">\(\alpha\)</span> value determines the “scope” of this activity effect. A <strong>small positive <span class="math inline">\(\alpha\)</span></strong> (e.g., 0.1 to 0.3) creates a very sharp distinction between low-degree and high-degree nodes, focusing the activity effect on the transition from being inactive to active. A <strong>larger <span class="math inline">\(\alpha\)</span></strong> (e.g., 1.0 or higher) smooths this effect, allowing the “activity” incentive to persist even as nodes reach higher degrees. In practice, <span class="math inline">\(\alpha\)</span> is often fixed to a value like <span class="math inline">\(\ln(2) \approx 0.69\)</span> to provide a balance that allows for stable estimation while still allowing high-degree nodes to drive the network structure through a negative coefficient.</p>
+</section>
+</section>
+</section>
+<section id="effect-of-the-gwodegree-coefficient-on-the-out-degree-distribution." class="level1">
+<h1>(2) Effect of the gwodegree coefficient on the out-degree distribution.</h1>
+<section id="i.-ergm-on-wave-1-edges" class="level3">
+<h3 class="anchored" data-anchor-id="i.-ergm-on-wave-1-edges">i. ERGM on Wave 1 edges</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(network)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ergm)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>file_path <span class="ot">&lt;-</span> <span class="st">"Assignment_02/Glasgow/f1.csv"</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Load the data as a raw matrix</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># We set header = FALSE because adjacency matrices often don't have column names</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>adj_m1 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">read.csv</span>(file_path, <span class="at">header =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Convert to network</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># We specify directed = TRUE for a friendship network</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>glasgow1 <span class="ot">&lt;-</span> <span class="fu">as.network</span>(adj_m1, <span class="at">directed =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Estimate M1 (Edges only)</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Check the results</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+ergm(formula = glasgow1 ~ edges)
+
+Maximum Likelihood Results:
+
+      Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
+edges  -3.5795     0.0479      0  -74.73   &lt;1e-04 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+     Null Deviance: 22890  on 16512  degrees of freedom
+ Residual Deviance:  4116  on 16511  degrees of freedom
+ 
+AIC: 4118  BIC: 4125  (Smaller is better. MC Std. Err. = 0)</code></pre>
+</div>
+</div>
+</section>
+<section id="ii.-ergm-on-wave-1-gwodegree--2-2-with-fixed-alpha-0.3" class="level3">
+<h3 class="anchored" data-anchor-id="ii.-ergm-on-wave-1-gwodegree--2-2-with-fixed-alpha-0.3">ii. ERGM on Wave 1 gwodegree <span class="math inline">\(\{ -2, 2\}\)</span> with fixed <span class="math inline">\(\alpha = 0.3\)</span></h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- M2 with coefficient = -2 ---</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>m2_neg <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">offset.coef =</span> <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- M2 with coefficient = 2 ---</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>m2_pos <span class="ot">&lt;-</span> <span class="fu">ergm</span>(glasgow1 <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">gwodegree</span>(<span class="at">decay =</span> <span class="fl">0.3</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">offset.coef =</span> <span class="dv">2</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare the 'edges' estimates</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2_neg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3, 
+    fixed = TRUE)), offset.coef = -2)
+
+Monte Carlo Maximum Likelihood Results:
+
+                         Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
+edges                     -3.3632     0.0391      1  -86.02   &lt;1e-04 ***
+offset(gwodeg.fixed.0.3)  -2.0000     0.0000      0    -Inf   &lt;1e-04 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+     Null Deviance: 22890  on 16512  degrees of freedom
+ Residual Deviance:  4116  on 16510  degrees of freedom
+ 
+AIC: 4118  BIC: 4126  (Smaller is better. MC Std. Err. = 1.093)
+
+ The following terms are fixed by offset and are not estimated:
+   `offset(gwodeg.fixed.0.3)` 
+ </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2_pos)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+ergm(formula = glasgow1 ~ edges + offset(gwodegree(decay = 0.3, 
+    fixed = TRUE)), offset.coef = 2)
+
+Monte Carlo Maximum Likelihood Results:
+
+                         Estimate Std. Error MCMC % z value Pr(&gt;|z|)    
+edges                    -3.68956    0.05381      1  -68.56   &lt;1e-04 ***
+offset(gwodeg.fixed.0.3)  2.00000    0.00000      0     Inf   &lt;1e-04 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+     Null Deviance: 22890  on 16512  degrees of freedom
+ Residual Deviance:  4116  on 16510  degrees of freedom
+ 
+AIC: 4118  BIC: 4125  (Smaller is better. MC Std. Err. = 0.5186)
+
+ The following terms are fixed by offset and are not estimated:
+   `offset(gwodeg.fixed.0.3)` 
+ </code></pre>
+</div>
+</div>
+</section>
+<section id="iii.-simulations" class="level3">
+<h3 class="anchored" data-anchor-id="iii.-simulations">iii. Simulations$</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Simulate 100 networks from each model</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sim_m1 <span class="ot">&lt;-</span> <span class="fu">simulate</span>(m1, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>sim_m2_neg <span class="ot">&lt;-</span> <span class="fu">simulate</span>(m2_neg, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>sim_m2_pos <span class="ot">&lt;-</span> <span class="fu">simulate</span>(m2_pos, <span class="at">nsim =</span> <span class="dv">100</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Function to get degree distributions from a list of simulated networks</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>get_degree_df <span class="ot">&lt;-</span> <span class="cf">function</span>(sim_list, model_name) {</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get out-degrees for every node in every simulated network</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># This creates a long data frame for plotting</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(sim_list), <span class="cf">function</span>(i) {</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">degree =</span> <span class="fu">summary</span>(sim_list[[i]] <span class="sc">~</span> <span class="fu">odegree</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">15</span>)),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">deg_val =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">15</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">model =</span> model_name,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">sim_id =</span> i</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Combine data for plotting</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m1, <span class="st">"M1 (Edges Only)"</span>),</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m2_neg, <span class="st">"M2 (Coef = -2)"</span>),</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_degree_df</span>(sim_m2_pos, <span class="st">"M2 (Coef = 2)"</span>)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Create the violin plot</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.factor</span>(deg_val), <span class="at">y =</span> degree, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.8</span>), <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Out-degree Distribution Comparison"</span>,</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Out-degree"</span>,</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Nodes"</span>,</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Model Configuration"</span>) <span class="sc">+</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-violin-plots" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-violin-plots-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="2.1_files/figure-html/fig-violin-plots-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-violin-plots-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Out-degree distributions across models
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
