@@ -161,12 +161,16 @@ coef_m2_pos <- coef(m2_pos)
 
 # Simulate
 sim_m1 <- simulate_formula(glasgow1 ~ edges, coef = coef_m1, nsim = 100)
-sim_m2_neg <- simulate_formula(glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)), 
-                               coef = c(coef_m2_neg["edges"], 0), 
-                               offset.coef = -2, nsim = 100)
-sim_m2_pos <- simulate_formula(glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)), 
-                               coef = c(coef_m2_pos["edges"], 0), 
-                               offset.coef = 2, nsim = 100)
+
+sim_m2_neg <- simulate_formula(
+  glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)), 
+  coef = c(coef_m2_neg["edges"], 0), 
+  offset.coef = -2, nsim = 100)
+
+sim_m2_pos <- simulate_formula(
+  glasgow1 ~ edges + offset(gwodegree(decay = 0.3, fixed = TRUE)), 
+  coef = c(coef_m2_pos["edges"], 0), 
+  offset.coef = 2, nsim = 100)
 
 get_degree_df <- function(sim_list, model_name) {
   # Out-degrees for every node in every simulated network
@@ -186,14 +190,15 @@ plot_df <- rbind(
   get_degree_df(sim_m2_pos, "M2 (Coef = 2)")
 )
 
-# Violin plot
+# Box plot
 ggplot(plot_df, aes(x = as.factor(deg_val), y = degree, fill = model)) +
-  geom_violin(position = position_dodge(width = 0.8), alpha = 0.7) +
+  geom_boxplot(alpha = 0.7, position = position_dodge(width = 0.8)) +
   labs(title = "Out-degree Distribution Comparison",
        x = "Out-degree",
        y = "Number of Nodes",
        fill = "Model Configuration") +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = "bottom")
 ```
 
 ### iv. Comparison of out-degree distributions across configurations
@@ -202,9 +207,9 @@ The distinction between the three model configurations—M1 (edges only), M2 wit
 
 **M1 (Edges only)** serves as a baseline and represents a purely random graph model. The edges-only specification produces a Poisson-like out-degree distribution centered around the expected density: nodes have relatively homogeneous out-degrees with light tails, reflecting that edge placement is equiprobable and independent (beyond the global density constraint). This distribution is what we would expect from a random network where density alone determines structure.
 
-**M2 with negative coefficient (Coef = −2)** suppresses the gwodegree statistic, actively penalizing networks with high values of the gwodegree term. Since gwodegree with positive $\alpha$ rewards spread-out, "ordinary" out-degree distributions, applying a negative coefficient inverts this preference. The resulting networks exhibit **increased concentration**: fewer nodes with very high out-degrees (hubs) and more nodes with very low out-degrees. This distribution deviates substantially from the random baseline, showing pronounced right skewness and centralization. Real-world social networks often exhibit such patterns where a small fraction of actors drive most communication.
+**M2 with negative coefficient (Coef = −2)** suppresses the gwodegree statistic, actively penalizing networks with high values of the gwodegree term. Since gwodegree with positive $\alpha$ rewards spread-out, "ordinary" out-degree distributions, applying a negative coefficient inverts this preference. The resulting networks exhibit **reduced concentration**: more nodes with low out-degrees and fewer nodes with very high out-degrees (fewer hubs). This distribution is closer to the random baseline, showing less pronounced centralization. The network exhibits a more democratic structure where activity is spread across many actors.
 
-**M2 with positive coefficient (Coef = 2)** amplifies gwodegree, rewarding networks where edges are more evenly distributed. The resulting out-degree distribution becomes **more uniform and dispersed**, with reduced concentration. Compared to M1, fewer hubs emerge and the distribution is flatter; compared to negative coefficient, the distributions are fundamentally opposite. This configuration would better capture scenarios where activity is democratized across many actors rather than concentrated.
+**M2 with positive coefficient (Coef = 2)** amplifies gwodegree, rewarding networks where the gwodegree statistic is high. Since gwodegree rewards spread-out distributions, one might expect more evenness; however, the positive coefficient strengthens the preference for networks that naturally maximize gwodegree. The resulting out-degree distribution becomes **more concentrated**, with increased emphasis on nodes with moderate to high out-degrees (more hubs). Compared to M1, more pronounced centralization emerges and the distribution has heavier right tail; compared to negative coefficient, the distributions are fundamentally opposite. This configuration captures scenarios where a few active nodes drive network formation.
 
 The magnitude of these distributional shifts—relative to the random baseline (M1)—demonstrates how even modest parameters ($\theta = \pm 2$) substantially reshape emergent network topology. The gwodegree parameter thus provides a powerful mechanism for controlling the balance between centralization and decentralization in ERGM simulations.
 
