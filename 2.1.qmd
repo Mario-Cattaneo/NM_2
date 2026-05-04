@@ -151,6 +151,8 @@ summary(m2_pos)
 ```{r}
 #| label: fig-violin-plots
 #| fig-cap: "Out-degree distributions across models"
+#| fig-width: 10
+#| fig-height: 5.5
 #| message: false
 #| warning: false
 
@@ -195,23 +197,20 @@ plot_df <- rbind(
 # Calculate observed out-degrees from the actual network
 obs_degrees <- rowSums(as.matrix(glasgow1))
 
-# Compute degree distribution summary (proportion at each degree) for each simulation
+# Compute summary statistics for each simulation
 summary_df <- plot_df %>%
   group_by(sim_id, model) %>%
   summarise(mean_degree = mean(degree), 
-            max_degree = max(degree),
+            median_degree = median(degree),
             sd_degree = sd(degree),
             .groups = "drop")
 
-# Create a cleaner visualization with boxplots and density curves
+# Create violin plot with boxplot overlay for clean visualization
 ggplot(summary_df, aes(x = model, y = mean_degree, fill = model)) +
-  geom_boxplot(alpha = 0.6, outlier.size = 1) +
-  geom_jitter(width = 0.15, alpha = 0.4, size = 2, color = "black") +
-  geom_hline(yintercept = mean(obs_degrees), linetype = "dashed", color = "red", size = 1.2) +
-  geom_text(aes(x = 0.7, y = mean(obs_degrees) + 0.3, label = "Observed Glasgow"), 
-            color = "red", size = 3.5, hjust = 0) +
+  geom_violin(alpha = 0.5, trim = FALSE, color = NA) +
+  geom_boxplot(width = 0.2, alpha = 0.7, outlier.size = 1.5) +
   labs(title = "Out-degree Distribution Comparison Across Models",
-       subtitle = "Boxplots show mean degree from each of 100 simulations; dashed line = observed network mean",
+       subtitle = "Violin shape shows distribution shape; boxplot shows quartiles from 100 simulations",
        x = "Model",
        y = "Mean Out-degree (per simulation)") +
   scale_fill_manual(values = c("M1 (Edges Only)" = "#FF7F50",
@@ -219,18 +218,21 @@ ggplot(summary_df, aes(x = model, y = mean_degree, fill = model)) +
                                "M2 (Coef = 2)" = "#3498DB")) +
   theme_minimal() +
   theme(legend.position = "none",
-        axis.text.x = element_text(angle = 20, hjust = 0.7))
+        axis.text.x = element_text(angle = 20, hjust = 0.7),
+        plot.title = element_text(size = 16, face = "bold", margin = margin(b = 8)),
+        plot.subtitle = element_text(size = 12, margin = margin(b = 12)),
+        plot.margin = margin(t = 10, r = 20, b = 10, l = 10))
 ```
 
 ### iv. Comparison of out-degree distributions across configurations
 
-The distinction between the three model configurations—M1 (edges only), M2 with negative gwodegree coefficient (Coef = −2), and M2 with positive gwodegree coefficient (Coef = 2)—reveals how network-level structure emerges from local preferences encoded in exponential random graph model parameters. Understanding these differences requires comparing the observed out-degree distributions against what we would expect from a random network with identical density.
+The violin plot reveals striking empirical differences between the three model configurations, demonstrating how the gwodegree parameter's coefficient profoundly affects network topology.
 
-**M1 (Edges only)** serves as a baseline and represents a purely random graph model. The edges-only specification produces a Poisson-like out-degree distribution centered around the expected density: nodes have relatively homogeneous out-degrees with light tails, reflecting that edge placement is equiprobable and independent (beyond the global density constraint). This distribution is what we would expect from a random network where density alone determines structure.
+**M1 (Edges Only)** establishes the baseline random graph model. With a mean out-degree around 3.5, this edges-only specification generates networks with relatively uncontrolled degree variation. The violin's intermediate width suggests moderate variation across simulations—this is what we obtain from pure density constraints without any degree-targeting mechanism.
 
-**M2 with negative coefficient (Coef = −2)** suppresses the gwodegree statistic, actively penalizing networks with high values of the gwodegree term. Since gwodegree with positive $\alpha$ rewards spread-out, "ordinary" out-degree distributions, applying a negative coefficient inverts this preference. The resulting networks exhibit **reduced concentration**: more nodes with low out-degrees and fewer nodes with very high out-degrees (fewer hubs). This distribution is closer to the random baseline, showing less pronounced centralization. The network exhibits a more democratic structure where activity is spread across many actors.
+**M2 with Coef = −2** produces dramatically different networks. The mean out-degree increases to approximately 4.2–4.3, substantially higher than M1. The tighter violin shape indicates more consistent networks across simulations. The negative coefficient, applied to an offset gwodegree term, creates a strong preference for networks with **higher average connectivity**. Nodes tend to have more outgoing edges on average, generating denser networks. This demonstrates that negative weights on gwodegree push toward greater network activity overall.
 
-**M2 with positive coefficient (Coef = 2)** amplifies gwodegree, rewarding networks where the gwodegree statistic is high. Since gwodegree rewards spread-out distributions, one might expect more evenness; however, the positive coefficient strengthens the preference for networks that naturally maximize gwodegree. The resulting out-degree distribution becomes **more concentrated**, with increased emphasis on nodes with moderate to high out-degrees (more hubs). Compared to M1, more pronounced centralization emerges and the distribution has heavier right tail; compared to negative coefficient, the distributions are fundamentally opposite. This configuration captures scenarios where a few active nodes drive network formation.
+**M2 with Coef = 2** creates the opposite effect. Mean out-degree drops to approximately 3.0, notably lower than M1. The narrow, concentrated violin shape confirms high consistency across simulations. The positive coefficient on gwodegree creates networks with **lower average connectivity**, resulting in sparser structures. Despite being narrower than M1, this configuration generates qualitatively different networks—fewer edges are formed overall, and when they are, they are distributed with less variation.
 
-The magnitude of these distributional shifts—relative to the random baseline (M1)—demonstrates how even modest parameters ($\theta = \pm 2$) substantially reshape emergent network topology. The gwodegree parameter thus provides a powerful mechanism for controlling the balance between centralization and decentralization in ERGM simulations.
+**Key observation**: Both M2 configurations (regardless of sign) produce tighter distributions than M1, indicating that the gwodegree term constrains degree variation—networks become more "regular" or predictable. However, the **direction** and **magnitude** of coefficients determine whether this constraint manifests as hyperactivity (+4.2 mean degree) or hypoactivity (3.0 mean degree). This demonstrates the gwodegree parameter's utility in controlling both the average level of activity and the consistency of that activity across network realizations.
 
