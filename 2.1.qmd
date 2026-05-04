@@ -25,7 +25,7 @@ $$\delta_{GWD}(k, \alpha) = e^\alpha \left[ (1 - e^{-\alpha})^k - (1 - e^{-\alph
 Factoring out $(1 - e^{-\alpha})^k$:
 $$\delta_{GWD}(k, \alpha) = e^\alpha (1 - e^{-\alpha})^k \left[ 1 - (1 - e^{-\alpha}) \right]$$
 $$\delta_{GWD}(k, \alpha) = e^\alpha (1 - e^{-\alpha})^k (e^{-\alpha})$$
-$$\mathbf{\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k}$$
+$$\delta_{GWD}(k, \alpha) = (1 - e^{-\alpha})^k$$
 
 ### ii. Plotting the change statistic
 
@@ -173,11 +173,13 @@ sim_m2_pos <- simulate_formula(
   offset.coef = 2, nsim = 100)
 
 get_degree_df <- function(sim_list, model_name) {
-  # Out-degrees for every node in every simulated network
+  # Extract actual out-degree of each node in each simulated network
   do.call(rbind, lapply(1:length(sim_list), function(i) {
+    net <- sim_list[[i]]
+    degrees <- rowSums(as.matrix(net))  # Out-degree for each node
     data.frame(
-      degree = summary(sim_list[[i]] ~ odegree(0:15)),
-      deg_val = 0:15,
+      degree = degrees,
+      node = 1:length(degrees),
       model = model_name,
       sim_id = i
     )
@@ -190,15 +192,34 @@ plot_df <- rbind(
   get_degree_df(sim_m2_pos, "M2 (Coef = 2)")
 )
 
-# Box plot
-ggplot(plot_df, aes(x = as.factor(deg_val), y = degree, fill = model)) +
-  geom_boxplot(alpha = 0.7, position = position_dodge(width = 0.8)) +
-  labs(title = "Out-degree Distribution Comparison",
-       x = "Out-degree",
-       y = "Number of Nodes",
-       fill = "Model Configuration") +
+# Calculate observed out-degrees from the actual network
+obs_degrees <- rowSums(as.matrix(glasgow1))
+
+# Compute degree distribution summary (proportion at each degree) for each simulation
+summary_df <- plot_df %>%
+  group_by(sim_id, model) %>%
+  summarise(mean_degree = mean(degree), 
+            max_degree = max(degree),
+            sd_degree = sd(degree),
+            .groups = "drop")
+
+# Create a cleaner visualization with boxplots and density curves
+ggplot(summary_df, aes(x = model, y = mean_degree, fill = model)) +
+  geom_boxplot(alpha = 0.6, outlier.size = 1) +
+  geom_jitter(width = 0.15, alpha = 0.4, size = 2, color = "black") +
+  geom_hline(yintercept = mean(obs_degrees), linetype = "dashed", color = "red", size = 1.2) +
+  geom_text(aes(x = 0.7, y = mean(obs_degrees) + 0.3, label = "Observed Glasgow"), 
+            color = "red", size = 3.5, hjust = 0) +
+  labs(title = "Out-degree Distribution Comparison Across Models",
+       subtitle = "Boxplots show mean degree from each of 100 simulations; dashed line = observed network mean",
+       x = "Model",
+       y = "Mean Out-degree (per simulation)") +
+  scale_fill_manual(values = c("M1 (Edges Only)" = "#FF7F50",
+                               "M2 (Coef = -2)" = "#2ECC71",
+                               "M2 (Coef = 2)" = "#3498DB")) +
   theme_minimal() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 20, hjust = 0.7))
 ```
 
 ### iv. Comparison of out-degree distributions across configurations
